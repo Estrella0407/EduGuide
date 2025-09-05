@@ -5,18 +5,25 @@ import java.util.*;
 import com.example.eduguide.GraphModule.GraphDisplay;
 import com.example.eduguide.GraphModule.GraphOperations;
 import com.example.eduguide.GraphModule.TraversalOfGraph;
+import com.example.eduguide.GraphModule.SearchCourse;
+import com.example.eduguide.GraphModule.EnrollInCourse;
 
 public class App {
     private static Login login;
     private static GraphOperations graph;
     private static GraphDisplay graphDisplay;
+    private static SearchCourse search;
     private static Map<String, Set<String>> studentEnrollments;
+    private static EnrollInCourse enroll;
         
     public static void main(String[] args) throws Exception {
         login = new Login();
         graph = new GraphOperations();
         graphDisplay = new GraphDisplay();
         studentEnrollments = new HashMap<>();
+        enroll = new EnrollInCourse(graph, login, studentEnrollments);
+        search = new SearchCourse();
+
         
         Scanner scanner = new Scanner(System.in);
         
@@ -33,9 +40,9 @@ public class App {
             menuOption = getValidInput(scanner);
 
             if (login.isUserStaff()) {
-                running = handleStaffOption(menuOption);
+                running = handleStaffOption(menuOption,scanner);
             } else {
-                running = handleStudentOption(menuOption);
+                running = handleStudentOption(menuOption, scanner);
             }
         }
         
@@ -58,7 +65,7 @@ public class App {
         return input;
     }
 
-    private static boolean handleStaffOption(int option) {
+    private static boolean handleStaffOption(int option, Scanner scanner) {
         switch (option) {
             case 1:
                 CLEAR_SCREEN();
@@ -66,7 +73,7 @@ public class App {
                 return true;
             case 2:
                 CLEAR_SCREEN();
-                // TODO: Implement course search
+                search.searchCourse(scanner);
                 return true;
             case 3:
                 CLEAR_SCREEN();
@@ -80,16 +87,17 @@ public class App {
         }
     }
 
-    private static boolean handleStudentOption(int option) {
+    private static boolean handleStudentOption(int option, Scanner scanner) {
         switch (option) {
             case 1:
                 CLEAR_SCREEN();
+                enroll.enrollInCourse(scanner);
                 TraversalOfGraph traversal = new TraversalOfGraph();
                 traversal.traversalOfGraphMenu(graph, login, studentEnrollments);
                 return true;
             case 2:
                 CLEAR_SCREEN();
-                // TODO: Implement course search
+                search.searchCourse(scanner);
                 return true;
             case 3:
                 CLEAR_SCREEN();

@@ -40,7 +40,7 @@ public class TraversalOfGraph {
 
         // Check all prerequisites
         for (Edge edge : prerequisites) {
-            if (edge.getRelation().equals("hasPrerequisite")) {
+            if (edge.getRelation().equalsIgnoreCase("hasPrerequisite")) {
                 if (!canEnrollHelper(graph, edge.getToVertex(), student, enrolledCourses, visited)) {
                     return false;
                 }
@@ -147,7 +147,7 @@ public class TraversalOfGraph {
 
         System.out.println("\nPrerequisites for " + course + ":");
         for (Edge edge : prerequisites) {
-            if (edge.getRelation().equals("hasPrerequisite")) {
+            if (edge.getRelation().equalsIgnoreCase("hasPrerequisite")) {
                 System.out.println("- " + edge.getToVertex());
             }
         }

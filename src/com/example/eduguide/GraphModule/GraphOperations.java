@@ -221,6 +221,31 @@ public class GraphOperations {
             } while (choice != 6);
             
             saveGraph(); // Save before exiting
-            scanner.close();
     }
+
+    // Normalize: ignore spaces/underscores and case
+    private String norm(String s) {
+        return s == null ? "" : s.replaceAll("[\\s_]+", "").toUpperCase(Locale.ROOT);
+    }
+
+    /** Find the actual stored course key matching user input (case/space-insensitive). */
+    public String findCourseKey(String userInput) {
+        String target = norm(userInput);
+        for (String key : graph.keySet()) {
+            if (norm(key).equals(target)) return key;
+        }
+        return null;
+    }
+
+    /** Case/space-insensitive substring search over course keys. */
+    public List<String> searchCourses(String query) {
+        String q = norm(query);
+        List<String> results = new ArrayList<>();
+        for (String key : graph.keySet()) {
+            if (norm(key).contains(q)) results.add(key);
+        }
+        Collections.sort(results);
+        return results;
+    }
+
 }
