@@ -97,11 +97,11 @@ public class App {
                 return true;
             case 4:
                 CLEAR_SCREEN();
-                // TODO: Implement view enrolled courses
+                new ViewCurrentCourses(login, studentEnrollments).display();
                 return true;
             case 5:
                 CLEAR_SCREEN();
-                // TODO: Implement course recommendations
+                new RecommendFutureCourses(login, studentEnrollments, graph).display();
                 return true;
             case 6:
                 return false; // Exit
