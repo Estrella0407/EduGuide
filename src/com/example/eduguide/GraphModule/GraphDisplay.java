@@ -62,12 +62,16 @@ public class GraphDisplay {
         Map<String, List<Edge>> graphData = graph.getGraph();
         Map<String, Set<String>> prerequisites = new HashMap<>();
         
-        // First pass: collect prerequisites for each course
+        // First pass: collect prerequisites for each course using the same logic as search
         for (String course : graphData.keySet()) {
-            for (Edge edge : graphData.get(course)) {
-                if (edge.getRelation().equalsIgnoreCase("hasPrerequisite")) {
-                    prerequisites.computeIfAbsent(course, k -> new HashSet<>())
-                               .add(edge.getToVertex());
+            List<Edge> edges = graphData.get(course);
+            if (edges != null) {
+                for (Edge edge : edges) {
+                    String relation = edge.getRelation().toLowerCase();
+                    if (relation.contains("prerequisite")) {
+                        prerequisites.computeIfAbsent(course, k -> new HashSet<>())
+                                .add(edge.getToVertex());
+                    }
                 }
             }
         }
@@ -75,68 +79,17 @@ public class GraphDisplay {
         // Display Available Courses with prerequisites
         System.out.println("\nAvailable Courses:");
         for (String course : graphData.keySet()) {
-            if (!prerequisites.containsKey(course) || prerequisites.get(course).isEmpty()) {
+            Set<String> prereqs = prerequisites.get(course);
+            if (prereqs == null || prereqs.isEmpty()) {
                 System.out.println("   - " + course + " (No prerequisites)");
             } else {
-                System.out.println("   - " + course + " (Prerequisite of " + 
-                                 String.join(", ", prerequisites.get(course)) + ")");
+                System.out.println("   - " + course + " (Prerequisites: " + 
+                                String.join(", ", prereqs) + ")");
             }
         }
         
         // Display Pathways
         System.out.println("\nPathways:");
-        Set<String> startingCourses = findStartingCourses(graphData);
-        Set<String> visited = new HashSet<>();
-        
-        for (String startCourse : startingCourses) {
-            if (!visited.contains(startCourse)) {
-                List<String> path = new ArrayList<>();
-                displayPath(graphData, startCourse, path, visited);
-            }
-        }
-    }
-
-    private Set<String> findStartingCourses(Map<String, List<Edge>> graphData) {
-        Set<String> allCourses = new HashSet<>(graphData.keySet());
-        Set<String> hasPrerequisites = new HashSet<>();
-        
-        // Find courses that are prerequisites
-        for (List<Edge> edges : graphData.values()) {
-            for (Edge edge : edges) {
-                if (edge.getRelation().equalsIgnoreCase("hasPrerequisite")) {
-                    hasPrerequisites.add(edge.getToVertex());
-                }
-            }
-        }
-        
-        // Remove courses that have prerequisites
-        allCourses.removeAll(hasPrerequisites);
-        return allCourses;
-    }
-
-    private void displayPath(Map<String, List<Edge>> graphData, String current, 
-                            List<String> path, Set<String> visited) {
-        path.add(current);
-        visited.add(current);
-        
-        // Get next courses in the pathway
-        List<String> nextCourses = new ArrayList<>();
-        for (Edge edge : graphData.get(current)) {
-            if (edge.getRelation().equalsIgnoreCase("hasPrerequisite")) {
-                nextCourses.add(edge.getToVertex());
-            }
-        }
-        
-        if (nextCourses.isEmpty()) {
-            // Print the complete path when we reach the end
-            System.out.println("   " + String.join(" -> ", path));
-        } else {
-            // Continue with each branch
-            for (String nextCourse : nextCourses) {
-                if (!path.contains(nextCourse)) { // Avoid cycles
-                    displayPath(graphData, nextCourse, new ArrayList<>(path), visited);
-                }
-            }
-        }
+        displayGraph(graph);
     }
 }

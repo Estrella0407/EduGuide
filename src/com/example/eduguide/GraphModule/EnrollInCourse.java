@@ -40,6 +40,9 @@ public class EnrollInCourse {
                 if (graph.canEnroll(courseKey, studentId, studentEnrollments)) {
                     myCourses.add(courseKey);
                     System.out.println("Successfully enrolled in " + courseKey + "!");
+                    
+                    // Save enrollments to file after successful enrollment
+                    EnrollmentPersistence.saveEnrollments(studentEnrollments);
                 } else {
                     System.out.println("Cannot enroll in " + courseKey + ". Prerequisites not met.");
                 }
