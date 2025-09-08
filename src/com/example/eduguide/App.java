@@ -69,8 +69,6 @@ public class App {
         System.out.println("Thank you for using University Course System!");
         scanner.close();
     }
-
-    // ... rest of your existing methods remain the same ...
     
     private static void CLEAR_SCREEN() {
         System.out.print("\033[H\033[2J");

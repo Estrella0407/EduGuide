@@ -304,13 +304,13 @@ public class GraphOperations {
         // Check ALL prerequisites are met
         boolean allMet = true;
         for (String prereq : prerequisites) {
-            // FIRST: Check if student has completed this prerequisite
+            // Check if student has completed this prerequisite
             if (!studentCourses.contains(prereq)) {
-                // SECOND: If not completed, check if the prerequisite's prerequisites are met
+                // If not completed, check if the prerequisite's prerequisites are met
                 Set<String> newVisited = new HashSet<>(visited);
                 boolean prereqMet = hasMetPrerequisitesWithDetails(prereq, studentId, enrollments, newVisited, missingPrereqs);
                 
-                // THIRD: If the prerequisite itself can't be enrolled (its prereqs not met), then this course can't be enrolled
+                // If the prerequisite itself can't be enrolled (its prereqs not met), then this course can't be enrolled
                 if (!prereqMet) {
                     missingPrereqs.add(prereq + " (and its prerequisites not met)");
                     allMet = false;
