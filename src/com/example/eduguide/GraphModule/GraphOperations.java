@@ -221,6 +221,7 @@ public class GraphOperations {
             } while (choice != 6);
             
             saveGraph(); // Save before exiting
+            scanner.close();
     }
 
     // Normalize: ignore spaces/underscores and case
