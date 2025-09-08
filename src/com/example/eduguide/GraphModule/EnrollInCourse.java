@@ -1,9 +1,8 @@
 package com.example.eduguide.GraphModule;
 
 import java.util.*;
-
 import com.example.eduguide.Edge;
-import com.example.eduguide.Login; 
+import com.example.eduguide.Login;
 
 public class EnrollInCourse {
     private GraphOperations graph;
@@ -18,9 +17,7 @@ public class EnrollInCourse {
         this.studentEnrollments = studentEnrollments;
     }
 
-    // Enroll in Course
     public void enrollInCourse(Scanner scanner) {
-        // Show what's available
         System.out.println("\nAvailable Courses:");
         for (String course : graphData.keySet()) {
             System.out.println("- " + course);
@@ -29,7 +26,6 @@ public class EnrollInCourse {
         System.out.print("Enter the course code to enroll: ");
         String input = scanner.nextLine().trim();
 
-        // Find the actual stored key (case/space-insensitive)
         String courseKey = graph.findCourseKey(input);
         if (courseKey == null) {
             System.out.println("Course not found: " + input);
@@ -41,8 +37,7 @@ public class EnrollInCourse {
             if (myCourses.contains(courseKey)) {
                 System.out.println("You are already enrolled in " + courseKey + "!");
             } else {
-                TraversalOfGraph traversal = new TraversalOfGraph();
-                if (traversal.canEnroll(graph, courseKey, studentId, studentEnrollments)) {
+                if (graph.canEnroll(courseKey, studentId, studentEnrollments)) {
                     myCourses.add(courseKey);
                     System.out.println("Successfully enrolled in " + courseKey + "!");
                 } else {
@@ -52,6 +47,6 @@ public class EnrollInCourse {
         }
 
         System.out.println("\nPress Enter to return to menu...");
-        scanner.nextLine(); // pause
+        scanner.nextLine();
     }
 }

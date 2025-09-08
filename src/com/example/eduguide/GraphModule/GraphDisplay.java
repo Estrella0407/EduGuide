@@ -4,7 +4,10 @@ import java.util.*;
 
 import com.example.eduguide.Edge;
 
+
 public class GraphDisplay {
+    private GraphOperations graphOperations;
+
     public void displayGraph(GraphOperations graph) {
         Map<String, List<Edge>> graphData = graph.getGraph();
         for (String vertex : graphData.keySet()) {
@@ -22,7 +25,7 @@ public class GraphDisplay {
         List<String> canEnrollNow = new ArrayList<>();
         List<String> futureRecommendations = new ArrayList<>();
         
-        TraversalOfGraph traversal = new TraversalOfGraph();
+
         Map<String, List<Edge>> graphData = graph.getGraph();
 
         // Check each course in the graph
@@ -31,7 +34,7 @@ public class GraphDisplay {
                 continue;  // Skip already enrolled courses
             }
 
-            if (traversal.canEnroll(graph, course, student, enrolledCourses)) {
+            if (graphOperations.canEnroll(course, student, enrolledCourses)) {
                 canEnrollNow.add(course);
             } else {
                 futureRecommendations.add(course);
