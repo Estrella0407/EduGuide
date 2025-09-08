@@ -118,6 +118,7 @@ public class App {
             case 1:
                 CLEAR_SCREEN();
                 enroll.enrollInCourse(scanner);
+                pauseForUser(scanner);
                 return true;
             case 2:
                 CLEAR_SCREEN();

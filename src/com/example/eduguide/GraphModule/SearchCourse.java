@@ -64,8 +64,5 @@ public class SearchCourse {
                 }
             }
         }
-
-        System.out.println("\nPress Enter to return to menu...");
-        scanner.nextLine(); // pause
     }
 }
