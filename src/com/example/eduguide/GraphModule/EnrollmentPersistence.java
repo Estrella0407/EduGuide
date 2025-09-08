@@ -71,28 +71,4 @@ public class EnrollmentPersistence {
         
         return studentEnrollments;
     }
-    
-    /**
-     * Backup enrollments with timestamp
-     */
-    
-    public static void backupEnrollments(Map<String, Set<String>> studentEnrollments) {
-        String timestamp = new java.text.SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date());
-        String backupFile = "student_enrollments_backup_" + timestamp + ".txt";
-        
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(backupFile))) {
-            for (Map.Entry<String, Set<String>> entry : studentEnrollments.entrySet()) {
-                String studentId = entry.getKey();
-                Set<String> courses = entry.getValue();
-                
-                if (!courses.isEmpty()) {
-                    writer.write(studentId + "|" + String.join(",", courses));
-                    writer.newLine();
-                }
-            }
-            System.out.println("Backup created: " + backupFile);
-        } catch (IOException e) {
-            System.err.println("Error creating backup: " + e.getMessage());
-        }
-    }
 }

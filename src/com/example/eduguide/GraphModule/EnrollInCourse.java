@@ -1,5 +1,4 @@
 package com.example.eduguide.GraphModule;
-
 import java.util.*;
 import com.example.eduguide.Edge;
 import com.example.eduguide.Login;
@@ -21,32 +20,48 @@ public class EnrollInCourse {
         System.out.println("\nAvailable Courses:");
         for (String course : graphData.keySet()) {
             System.out.println("- " + course);
+            // Show prerequisites for each course
+            List<String> prereqs = graph.getPrerequisites(course);
+            if (!prereqs.isEmpty()) {
+                System.out.println("  Prerequisites: " + String.join(", ", prereqs));
+            }
         }
-
+        
         System.out.print("Enter the course code to enroll: ");
         String input = scanner.nextLine().trim();
-
         String courseKey = graph.findCourseKey(input);
+        
         if (courseKey == null) {
             System.out.println("Course not found: " + input);
+            return;
+        }
+        
+        String studentId = login.getCurrentUserId();
+        studentEnrollments.putIfAbsent(studentId, new HashSet<>());
+        Set<String> myCourses = studentEnrollments.get(studentId);
+        
+        if (myCourses.contains(courseKey)) {
+            System.out.println("You are already enrolled in " + courseKey + "!");
+            return;
+        }
+        
+        // Get enrollment result as Map
+        Map<String, Object> result = graph.canEnrollWithDetails(courseKey, studentId, studentEnrollments);
+        boolean canEnroll = (Boolean) result.get("canEnroll");
+        List<String> missingPrereqs = (List<String>) result.get("missingPrerequisites");
+       
+        if (canEnroll) {
+            myCourses.add(courseKey);
+            System.out.println("Successfully enrolled in " + courseKey + "!");
+           
+            // Save enrollments to file after successful enrollment
+            EnrollmentPersistence.saveEnrollments(studentEnrollments);
         } else {
-            String studentId = login.getCurrentUserId();
-            studentEnrollments.putIfAbsent(studentId, new HashSet<>());
-            Set<String> myCourses = studentEnrollments.get(studentId);
-
-            if (myCourses.contains(courseKey)) {
-                System.out.println("You are already enrolled in " + courseKey + "!");
-            } else {
-                if (graph.canEnroll(courseKey, studentId, studentEnrollments)) {
-                    myCourses.add(courseKey);
-                    System.out.println("Successfully enrolled in " + courseKey + "!");
-                    
-                    // Save enrollments to file after successful enrollment
-                    EnrollmentPersistence.saveEnrollments(studentEnrollments);
-                } else {
-                    System.out.println("Cannot enroll in " + courseKey + ". Prerequisites not met.");
-                }
+            System.out.println("Cannot enroll in " + courseKey + ". Missing prerequisites:");
+            for (String missingPrereq : missingPrereqs) {
+                System.out.println("  - " + missingPrereq);
             }
+            System.out.println("\nPlease enroll in the prerequisite courses first.");
         }
     }
 }

@@ -54,7 +54,7 @@ public class GraphOperations {
         }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            graph.clear(); // Clear existing graph
+            graph = new HashMap<>(); // Initialize fresh HashMap instead of clear()
             
             String line = reader.readLine();
             if (line == null) {
@@ -115,7 +115,7 @@ public class GraphOperations {
         String standardizedTo = toVertex.trim().toUpperCase();
         String standardizedRelation = relation.trim().toLowerCase();
         
-        // Check if edge already exists
+        // Rest of your addEdge method remains the same...
         if (graph.containsKey(standardizedFrom)) {
             for (Edge edge : graph.get(standardizedFrom)) {
                 if (edge.getToVertex().equals(standardizedTo) && 
@@ -135,19 +135,22 @@ public class GraphOperations {
         System.out.println("Edge added successfully.");
     }
 
-    public void removeVertex(String vertex) {
-        // Remove the vertex itself
-        graph.remove(vertex);
+    public void removeEdge(String fromVertex, String toVertex) {
+        String standardizedFrom = fromVertex.trim().toUpperCase();
+        String standardizedTo = toVertex.trim().toUpperCase();
         
-        // Remove all edges pointing to this vertex
-        for (List<Edge> edges : graph.values()) {
-            edges.removeIf(edge -> edge.getToVertex().equals(vertex));
+        if (graph.containsKey(standardizedFrom)) {
+            graph.get(standardizedFrom).removeIf(edge -> edge.getToVertex().equals(standardizedTo));
         }
     }
 
-    public void removeEdge(String fromVertex, String toVertex) {
-        if (graph.containsKey(fromVertex)) {
-            graph.get(fromVertex).removeIf(edge -> edge.getToVertex().equals(toVertex));
+    public void removeVertex(String vertex) {
+        String standardizedVertex = vertex.trim().toUpperCase();
+        graph.remove(standardizedVertex);
+        
+        // Also remove edges pointing to this vertex
+        for (List<Edge> edges : graph.values()) {
+            edges.removeIf(edge -> edge.getToVertex().equals(standardizedVertex));
         }
     }
 
@@ -177,7 +180,6 @@ public class GraphOperations {
                     System.out.print("Enter vertex name: ");
                     String vertex = scanner.nextLine();
                     addVertex(vertex);
-                    System.out.println("Vertex added.");
                     saveGraph(); // Save after adding vertex
                     break;
                 case 2:
@@ -188,7 +190,6 @@ public class GraphOperations {
                     System.out.print("Enter relation: ");
                     String relation = scanner.nextLine();
                     addEdge(fromVertex, toVertex, relation);
-                    System.out.println("Edge added.");
                     saveGraph(); // Save after adding edge
                     break;
                 case 3:
@@ -247,48 +248,80 @@ public class GraphOperations {
         Collections.sort(results);
         return results;
     }
-
-    public boolean canEnroll(String course, String student, Map<String, Set<String>> enrolledCourses) {
-        Set<String> visited = new HashSet<>();
-        return canEnrollHelper(course, student, enrolledCourses, visited);
-    }
-
-    private boolean canEnrollHelper(String course, String student, 
-            Map<String, Set<String>> enrolledCourses, Set<String> visited) {
+    
+    public List<String> getPrerequisites(String courseCode) {
+        List<String> prerequisites = new ArrayList<>();
         
-        // If student is already enrolled, they can "enroll" (prerequisite satisfied)
-        Set<String> studentCourses = enrolledCourses.get(student);
-        if (studentCourses != null && studentCourses.contains(course)) {
-            return true;
-        }
-
-        // Prevent infinite recursion (circular prerequisites)
-        if (visited.contains(course)) {
-            return false;
-        }
-
-        visited.add(course);
-
-        // Get prerequisites for this course
-        List<Edge> courseEdges = getEdges(course);
-        if (courseEdges == null || courseEdges.isEmpty()) {
-            visited.remove(course);
-            return true; // No prerequisites
-        }
-
-        // Check all prerequisites are satisfied
-        for (Edge edge : courseEdges) {
-            if (edge.getRelation().equalsIgnoreCase("hasPrerequisite")) {
-                if (!canEnrollHelper(edge.getToVertex(), student, enrolledCourses, visited)) {
-                    visited.remove(course);
-                    return false;
+        // Look through ALL courses to find edges that point TO this course
+        for (Map.Entry<String, List<Edge>> entry : graph.entrySet()) {
+            String fromCourse = entry.getKey();
+            List<Edge> edges = entry.getValue();
+            
+            for (Edge edge : edges) {
+                // If this edge points to our target course
+                if (edge.getToVertex().equals(courseCode)) {
+                    String relation = edge.getRelation().toLowerCase();
+                    // Check if the relation indicates a prerequisite
+                    if (relation.contains("prerequisite")) {
+                        prerequisites.add(fromCourse);
+                    }
                 }
             }
         }
-
-        visited.remove(course);
-        return true;
+        return prerequisites;
     }
 
+    public Map<String, Object> canEnrollWithDetails(String courseCode, String studentId, Map<String, Set<String>> enrollments) {
+        Set<String> visited = new HashSet<>();
+        List<String> missingPrereqs = new ArrayList<>();
+        boolean canEnroll = hasMetPrerequisitesWithDetails(courseCode, studentId, enrollments, visited, missingPrereqs);
+        Map<String, Object> result = new HashMap<>();
+        result.put("canEnroll", canEnroll);
+        result.put("missingPrerequisites", missingPrereqs);
+        return result;
+    }
 
+    private boolean hasMetPrerequisitesWithDetails(String courseCode, String studentId, Map<String, Set<String>> enrollments,
+                                        Set<String> visited, List<String> missingPrereqs) {
+        Set<String> studentCourses = enrollments.getOrDefault(studentId, new HashSet<>());
+        List<String> prerequisites = getPrerequisites(courseCode);
+
+        if (visited.contains(courseCode)) {
+            return true; // Prevent infinite loops
+        }
+        visited.add(courseCode);
+        
+        // If student is already enrolled in this course, they meet the requirement
+        if (studentCourses.contains(courseCode)) {
+            return true;
+        }
+        
+        // If no prerequisites, student can enroll
+        if (prerequisites.isEmpty()) {
+            return true;
+        }
+        
+        // Check ALL prerequisites are met
+        boolean allMet = true;
+        for (String prereq : prerequisites) {
+            // FIRST: Check if student has completed this prerequisite
+            if (!studentCourses.contains(prereq)) {
+                // SECOND: If not completed, check if the prerequisite's prerequisites are met
+                Set<String> newVisited = new HashSet<>(visited);
+                boolean prereqMet = hasMetPrerequisitesWithDetails(prereq, studentId, enrollments, newVisited, missingPrereqs);
+                
+                // THIRD: If the prerequisite itself can't be enrolled (its prereqs not met), then this course can't be enrolled
+                if (!prereqMet) {
+                    missingPrereqs.add(prereq + " (and its prerequisites not met)");
+                    allMet = false;
+                } else {
+                    // The prerequisite can be enrolled, but student hasn't taken it yet
+                    missingPrereqs.add(prereq);
+                    allMet = false;
+                }
+            }
+            // If student has the prerequisite, no need to check further for this prereq
+        }
+        return allMet;
+    }
 }
