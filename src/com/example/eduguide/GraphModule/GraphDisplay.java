@@ -11,7 +11,7 @@ public class GraphDisplay {
     public void displayGraph(GraphOperations graph) {
         Map<String, List<Edge>> graphData = graph.getGraph();
         for (String vertex : graphData.keySet()) {
-            System.out.println("\n" + vertex + " ->");
+            System.out.println("\n" + vertex);
             for (Edge edge : graphData.get(vertex)) {
                 System.out.println(" |__ " + edge.getRelation() + " -> " + edge.getToVertex());
             }
