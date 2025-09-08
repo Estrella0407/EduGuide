@@ -1,8 +1,9 @@
-package com.example.eduguide;
+package com.example.eduguide.GraphModule;
 
 import java.util.*;
 
-import com.example.eduguide.GraphModule.GraphOperations;
+import com.example.eduguide.Edge;
+import com.example.eduguide.Login;
 
 public class RecommendFutureCourses {
 

@@ -4,7 +4,9 @@ import java.util.*;
 
 import com.example.eduguide.GraphModule.GraphDisplay;
 import com.example.eduguide.GraphModule.GraphOperations;
+import com.example.eduguide.GraphModule.RecommendFutureCourses;
 import com.example.eduguide.GraphModule.TraversalOfGraph;
+import com.example.eduguide.GraphModule.ViewCurrentCourses;
 import com.example.eduguide.GraphModule.SearchCourse;
 import com.example.eduguide.GraphModule.EnrollInCourse;
 
