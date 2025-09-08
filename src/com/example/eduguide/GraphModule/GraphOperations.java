@@ -249,4 +249,47 @@ public class GraphOperations {
         return results;
     }
 
+    public boolean canEnroll(String course, String student, Map<String, Set<String>> enrolledCourses) {
+        Set<String> visited = new HashSet<>();
+        return canEnrollHelper(course, student, enrolledCourses, visited);
+    }
+
+    private boolean canEnrollHelper(String course, String student, 
+            Map<String, Set<String>> enrolledCourses, Set<String> visited) {
+        
+        // If student is already enrolled, they can "enroll" (prerequisite satisfied)
+        Set<String> studentCourses = enrolledCourses.get(student);
+        if (studentCourses != null && studentCourses.contains(course)) {
+            return true;
+        }
+
+        // Prevent infinite recursion (circular prerequisites)
+        if (visited.contains(course)) {
+            return false;
+        }
+
+        visited.add(course);
+
+        // Get prerequisites for this course
+        List<Edge> courseEdges = getEdges(course);
+        if (courseEdges == null || courseEdges.isEmpty()) {
+            visited.remove(course);
+            return true; // No prerequisites
+        }
+
+        // Check all prerequisites are satisfied
+        for (Edge edge : courseEdges) {
+            if (edge.getRelation().equalsIgnoreCase("hasPrerequisite")) {
+                if (!canEnrollHelper(edge.getToVertex(), student, enrolledCourses, visited)) {
+                    visited.remove(course);
+                    return false;
+                }
+            }
+        }
+
+        visited.remove(course);
+        return true;
+    }
+
+
 }

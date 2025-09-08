@@ -1,11 +1,9 @@
 package com.example.eduguide;
 
 import java.util.*;
-
 import com.example.eduguide.GraphModule.GraphDisplay;
 import com.example.eduguide.GraphModule.GraphOperations;
 import com.example.eduguide.GraphModule.RecommendFutureCourses;
-import com.example.eduguide.GraphModule.TraversalOfGraph;
 import com.example.eduguide.GraphModule.ViewCurrentCourses;
 import com.example.eduguide.GraphModule.SearchCourse;
 import com.example.eduguide.GraphModule.EnrollInCourse;
@@ -25,11 +23,9 @@ public class App {
         studentEnrollments = new HashMap<>();
         enroll = new EnrollInCourse(graph, login, studentEnrollments);
         search = new SearchCourse();
-
         
         Scanner scanner = new Scanner(System.in);
         
-        // Handle login
         while (!handleLogin(scanner)) {
             System.out.println("Please try again.");
         }
@@ -42,7 +38,7 @@ public class App {
             menuOption = getValidInput(scanner);
 
             if (login.isUserStaff()) {
-                running = handleStaffOption(menuOption,scanner);
+                running = handleStaffOption(menuOption, scanner);
             } else {
                 running = handleStudentOption(menuOption, scanner);
             }
@@ -63,7 +59,7 @@ public class App {
             scanner.next();
         }
         int input = scanner.nextInt();
-        scanner.nextLine(); // Consume newline
+        scanner.nextLine();
         return input;
     }
 
@@ -80,9 +76,10 @@ public class App {
             case 3:
                 CLEAR_SCREEN();
                 graphDisplay.universityCourseNetwork(graph);
+                pauseForUser(scanner);
                 return true;
             case 4:
-                return false; // Exit
+                return false;
             default:
                 System.out.println("Invalid option. Please try again.");
                 return true;
@@ -94,8 +91,6 @@ public class App {
             case 1:
                 CLEAR_SCREEN();
                 enroll.enrollInCourse(scanner);
-                TraversalOfGraph traversal = new TraversalOfGraph();
-                traversal.traversalOfGraphMenu(graph, login, studentEnrollments);
                 return true;
             case 2:
                 CLEAR_SCREEN();
@@ -104,22 +99,26 @@ public class App {
             case 3:
                 CLEAR_SCREEN();
                 graphDisplay.universityCourseNetwork(graph);
+                pauseForUser(scanner);
                 return true;
             case 4:
                 CLEAR_SCREEN();
                 new ViewCurrentCourses(login, studentEnrollments).display();
+                pauseForUser(scanner);
                 return true;
             case 5:
                 CLEAR_SCREEN();
                 new RecommendFutureCourses(login, studentEnrollments, graph).display();
+                pauseForUser(scanner);
                 return true;
             case 6:
-                return false; // Exit
+                return false;
             default:
                 System.out.println("Invalid option. Please try again.");
                 return true;
         }
     }
+
 
     private static boolean handleLogin(Scanner scanner) {
         System.out.println("Welcome to University Course System");
@@ -163,5 +162,10 @@ public class App {
         System.out.println("4. View Current Enrolled Courses");
         System.out.println("5. Recommend Future Courses");
         System.out.println("6. Exit");
+    }
+
+    static void pauseForUser(Scanner scanner) {
+        System.out.println("\nPress Enter to return to menu...");
+        scanner.nextLine();
     }
 }
