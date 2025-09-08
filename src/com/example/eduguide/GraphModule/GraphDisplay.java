@@ -6,8 +6,6 @@ import com.example.eduguide.Edge;
 
 
 public class GraphDisplay {
-    private GraphOperations graphOperations;
-
     public void displayGraph(GraphOperations graph) {
         Map<String, List<Edge>> graphData = graph.getGraph();
         for (String vertex : graphData.keySet()) {
@@ -15,46 +13,6 @@ public class GraphDisplay {
             for (Edge edge : graphData.get(vertex)) {
                 System.out.println(" |__ " + edge.getRelation() + " -> " + edge.getToVertex());
             }
-        }
-    }
-
-    public void recommendCourses(GraphOperations graph, String student, 
-            Map<String, Set<String>> enrolledCourses) {
-        
-        Set<String> alreadyEnrolled = enrolledCourses.getOrDefault(student, new HashSet<>());
-        List<String> canEnrollNow = new ArrayList<>();
-        List<String> futureRecommendations = new ArrayList<>();
-        
-
-        Map<String, List<Edge>> graphData = graph.getGraph();
-
-        // Check each course in the graph
-        for (String course : graphData.keySet()) {
-            if (alreadyEnrolled.contains(course)) {
-                continue;  // Skip already enrolled courses
-            }
-
-            if (graphOperations.canEnroll(course, student, enrolledCourses)) {
-                canEnrollNow.add(course);
-            } else {
-                futureRecommendations.add(course);
-            }
-        }
-
-        // Display results
-        System.out.println("Enrolled Courses for " + student + ":");
-        for (String course : alreadyEnrolled) {
-            System.out.println("   " + course);
-        }
-
-        System.out.println("\nCan Enroll Now:");
-        for (String course : canEnrollNow) {
-            System.out.println("   " + course);
-        }
-
-        System.out.println("\nFuture Recommendations:");
-        for (String course : futureRecommendations) {
-            System.out.println("   " + course);
         }
     }
 
